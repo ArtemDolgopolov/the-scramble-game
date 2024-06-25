@@ -1,4 +1,8 @@
 import './styles.scss'
+import { levels } from './levels'
+
+let currentIndex = 0
+let level = levels[currentIndex]
 
 const container = document.createElement('div')
 container.classList.add('container')
@@ -14,21 +18,24 @@ container.appendChild(content)
 
 const word = document.createElement('p')
 word.classList.add('word')
-word.textContent = 'atrwe'
+word.textContent = level.word.split('').sort(() => Math.random() - 0.5).join('')
 content.appendChild(word)
+console.log(word.textContent)
 
 const details = document.createElement('div')
 details.classList.add('details')
 content.appendChild(details)
 
 const hint = document.createElement('p')
-word.classList.add('hint')
+hint.classList.add('hint')
 hint.textContent = 'Hint:'
 details.appendChild(hint)
 
 const hintSpan = document.createElement('span')
-hintSpan.textContent = ' A liquid which we daily drink'
+hintSpan.classList.add('hint-span')
+hintSpan.textContent = level.hint
 hint.appendChild(hintSpan)
+console.log(hintSpan.textContent)
 
 const time = document.createElement('p')
 time.classList.add('time')
@@ -58,3 +65,25 @@ checkWordButton.classList.add('check-word')
 checkWordButton.textContent = 'Check Word'
 buttons.appendChild(checkWordButton)
 
+checkWordButton.addEventListener('click', () => {
+  const inputValue = input.value.toLowerCase()
+  
+  if (inputValue.trim() !== level.word) {
+    alert(`${inputValue} is the wrong word!`) 
+  } else {
+      alert(`${inputValue} is the right word!`)
+      currentIndex = (currentIndex + 1) % levels.length
+      goToNextLevel(currentIndex)
+    }
+})
+
+function goToNextLevel(index) {
+  level = levels[index]
+
+  const word = document.querySelector('.word')
+  const hintSpan = document.querySelector('.hint-span')
+
+  word.textContent = level.word.split('').sort(() => Math.random() - 0.5).join('')
+  hintSpan.textContent = level.hint
+  input.value = ''
+}
