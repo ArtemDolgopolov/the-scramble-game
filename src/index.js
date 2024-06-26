@@ -66,13 +66,18 @@ checkWordButton.textContent = 'Check Word'
 buttons.appendChild(checkWordButton)
 
 checkWordButton.addEventListener('click', () => {
-  const inputValue = input.value.toLowerCase()
+  const inputValue = input.value.toLowerCase().trim()
   
   if (inputValue.trim() !== level.word) {
-    alert(`${inputValue} is the wrong word!`) 
+    alert(`${inputValue.trim()} is the wrong word!`) 
   } else {
-      alert(`${inputValue} is the right word!`)
-      currentIndex = (currentIndex + 1) % levels.length
+      alert(`${inputValue.trim()} is the right word!`)
+      if (currentIndex === levels.length) {
+       currentIndex == 0
+      }
+      else {
+       currentIndex = (currentIndex + 1) % levels.length
+      } 
       goToNextLevel(currentIndex)
     }
 })
