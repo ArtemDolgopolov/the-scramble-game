@@ -82,6 +82,17 @@ checkWordButton.addEventListener('click', () => {
     }
 })
 
+refreshWordButton.addEventListener('click', () => {
+  if (currentIndex === levels.length) {
+    currentIndex == 0
+  }
+  else {
+    currentIndex = Math.floor(Math.random() * (levels.length - 0 + 1)) + 1
+  } 
+    goToNextLevel(currentIndex)
+  }
+) 
+
 function goToNextLevel(index) {
   level = levels[index]
 
