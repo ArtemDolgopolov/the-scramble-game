@@ -3,6 +3,10 @@ import { levels } from './levels'
 
 let currentIndex = 0
 let level = levels[currentIndex]
+let countDownMoment
+let timerTimeout
+let remainingTime 
+let alertTriggered = false
 
 const container = document.createElement('div')
 container.classList.add('container')
@@ -83,13 +87,9 @@ checkWordButton.addEventListener('click', () => {
 })
 
 refreshWordButton.addEventListener('click', () => {
-  if (currentIndex === levels.length) {
-    currentIndex == 0
-  }
-  else {
     currentIndex = Math.floor(Math.random() * (levels.length - 0 + 1)) + 1
-  } 
     goToNextLevel(currentIndex)
+    resetTimer()
   }
 ) 
 
@@ -103,3 +103,55 @@ function goToNextLevel(index) {
   hintSpan.textContent = level.hint
   input.value = ''
 }
+
+function startCountdown() {
+  const now = new Date().getTime()
+  const countdown = new Date(countDownMoment).getTime()
+
+  const difference = (countdown - now) / 1000
+
+  let seconds = Math.floor(difference % 60)
+
+  timeSpan.textContent = seconds
+
+  if (seconds <= 0 && !alertTriggered) {
+    alertTriggered = true
+    remainingTime = countdown - now
+    clearTimeout(timerTimeout)
+    alert(`Time is up! The right word is ${level.word}`)
+    resetTimer()
+    goToNextLevel(Math.floor(Math.random() * (levels.length - 0 + 1)) + 1)
+  } else {
+    timerTimeout = setTimeout(startCountdown, 1000 - (now % 1000))
+  }
+}
+
+function resetTimer() {
+  const now = new Date().getTime()
+  countDownMoment = new Date().setSeconds(new Date().getSeconds() + 30)
+  alertTriggered = false
+  timeSpan.textContent = 30
+  startCountdown()
+}
+
+window.addEventListener("load", () => {
+  resetTimer()
+})
+
+function continueCountdown() {
+  if (alertTriggered) {
+    const now = new Date().getTime()
+    countDownMoment = new Date(now + remainingTime)
+    alertTriggered = false
+    startCountdown()
+  }
+}
+
+window.addEventListener("load", () => {
+  resetTimer()
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      continueCountdown()
+    }
+  })
+})
