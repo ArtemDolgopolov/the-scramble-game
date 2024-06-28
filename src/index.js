@@ -3,10 +3,9 @@ import { levels } from './levels'
 
 let currentIndex = 0
 let level = levels[currentIndex]
-let countDownMoment
 let timerTimeout
-let remainingTime 
-let alertTriggered = false
+let remainingTime
+let isModalOpened = false
 
 const container = document.createElement('div')
 container.classList.add('container')
@@ -24,7 +23,6 @@ const word = document.createElement('p')
 word.classList.add('word')
 word.textContent = level.word.split('').sort(() => Math.random() - 0.5).join('')
 content.appendChild(word)
-console.log(word.textContent)
 
 const details = document.createElement('div')
 details.classList.add('details')
@@ -39,7 +37,6 @@ const hintSpan = document.createElement('span')
 hintSpan.classList.add('hint-span')
 hintSpan.textContent = level.hint
 hint.appendChild(hintSpan)
-console.log(hintSpan.textContent)
 
 const time = document.createElement('p')
 time.classList.add('time')
@@ -69,21 +66,55 @@ checkWordButton.classList.add('check-word')
 checkWordButton.textContent = 'Check Word'
 buttons.appendChild(checkWordButton)
 
+const modal = document.createElement('div')
+modal.classList.add('modal')
+modal.id = 'game-modal'
+document.body.appendChild(modal)
+
+const modalBox = document.createElement('div')
+modalBox.classList.add('modal__box')
+modal.appendChild(modalBox)
+
+const modalText = document.createElement('p')
+modalText.classList.add('modal-text')
+modalText.textContent = ''
+modalBox.appendChild(modalText)
+
+const closeModalButton = document.createElement('div')
+closeModalButton.classList.add('close-modal-button')
+closeModalButton.textContent = 'X'
+modalBox.appendChild(closeModalButton)
+
+closeModalButton.addEventListener('click', () => {
+  modal.classList.remove('open')
+  isModalOpened = false
+  startCountdown()
+})
+
+function openModal() {
+  modal.classList.add('open')
+  isModalOpened = true
+  clearInterval(timerTimeout)
+}
+
 checkWordButton.addEventListener('click', () => {
   const inputValue = input.value.toLowerCase().trim()
   
   if (inputValue.trim() !== level.word) {
-    alert(`${inputValue.trim()} is the wrong word!`) 
-  } else {
-      alert(`${inputValue.trim()} is the right word!`)
-      if (currentIndex === levels.length) {
-       currentIndex == 0
-      }
-      else {
-       currentIndex = (currentIndex + 1) % levels.length
-      } 
-      goToNextLevel(currentIndex)
-    }
+    openModal()
+    modalText.textContent = `${inputValue.trim()} is the wrong word!` 
+  } 
+  else {
+    openModal()
+    modalText.textContent = `${inputValue.trim()} is the right word!`
+    currentIndex = (currentIndex + 1) % levels.length
+    goToNextLevel(currentIndex)
+    resetTimer()
+  }
+  if (inputValue.trim() === '') {
+   openModal()
+   modalText.textContent = 'Type a word to check first!'
+ } 
 })
 
 refreshWordButton.addEventListener('click', () => {
@@ -105,53 +136,30 @@ function goToNextLevel(index) {
 }
 
 function startCountdown() {
-  const now = new Date().getTime()
-  const countdown = new Date(countDownMoment).getTime()
+ if (isModalOpened) return
 
-  const difference = (countdown - now) / 1000
+ clearInterval(timerTimeout)
 
-  let seconds = Math.floor(difference % 60)
-
-  timeSpan.textContent = seconds
-
-  if (seconds <= 0 && !alertTriggered) {
-    alertTriggered = true
-    remainingTime = countdown - now
-    clearTimeout(timerTimeout)
-    alert(`Time is up! The right word is ${level.word}`)
-    resetTimer()
-    goToNextLevel(Math.floor(Math.random() * (levels.length - 0 + 1)) + 1)
-  } else {
-    timerTimeout = setTimeout(startCountdown, 1000 - (now % 1000))
-  }
+ timerTimeout = setInterval(() => {
+   if (remainingTime > 0) {
+     remainingTime -= 1
+     timeSpan.textContent = remainingTime
+   } else {
+     clearInterval(timerTimeout)
+     openModal()
+     modalText.textContent = `Time is up! The right word is ${level.word}`
+     resetTimer()
+     goToNextLevel(Math.floor(Math.random() * levels.length))
+   }
+ }, 1000)
 }
 
 function resetTimer() {
-  const now = new Date().getTime()
-  countDownMoment = new Date().setSeconds(new Date().getSeconds() + 30)
-  alertTriggered = false
-  timeSpan.textContent = 30
+  remainingTime = 30
+  timeSpan.textContent = remainingTime
   startCountdown()
 }
 
 window.addEventListener("load", () => {
   resetTimer()
-})
-
-function continueCountdown() {
-  if (alertTriggered) {
-    const now = new Date().getTime()
-    countDownMoment = new Date(now + remainingTime)
-    alertTriggered = false
-    startCountdown()
-  }
-}
-
-window.addEventListener("load", () => {
-  resetTimer()
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-      continueCountdown()
-    }
-  })
 })
