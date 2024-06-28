@@ -91,6 +91,14 @@ closeModalButton.addEventListener('click', () => {
   startCountdown()
 })
 
+modal.addEventListener('click', (e) => {
+ if (e.target == modal) {
+  modal.classList.remove('open')
+  isModalOpened = false
+  startCountdown()
+ }
+})
+
 function openModal() {
   modal.classList.add('open')
   isModalOpened = true
