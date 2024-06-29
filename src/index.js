@@ -82,7 +82,6 @@ modalBox.appendChild(modalText)
 
 const closeModalButton = document.createElement('div')
 closeModalButton.classList.add('close-modal-button')
-closeModalButton.textContent = 'X'
 modalBox.appendChild(closeModalButton)
 
 closeModalButton.addEventListener('click', () => {
